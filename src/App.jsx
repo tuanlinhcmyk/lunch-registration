@@ -5,16 +5,16 @@ export default function App() {
   return <LunchRegistrationApp />;
 }
 
-function LunchRegistrationApp() {import React, { useState, useEffect, useRef } from 'react';
+function LunchRegistrationApp() {
+  import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle2, AlertCircle, RotateCw, Download, LogOut, Lock } from 'lucide-react';
 
-export default function LunchRegistrationApp() {
-  const [currentView, setCurrentView] = useState('signup'); // 'signup', 'admin', 'pin'
+export default function App() {
+  const [currentView, setCurrentView] = useState('signup');
   const [adminPin, setAdminPin] = useState('');
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
 
-  // Signup form state
   const [formData, setFormData] = useState({
     name: '',
     department: '',
@@ -24,32 +24,19 @@ export default function LunchRegistrationApp() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Admin state
   const [registrations, setRegistrations] = useState([]);
   const [adminLoading, setAdminLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const pollIntervalRef = useRef(null);
 
-  const ADMIN_PIN = '1234'; // Change this to your desired PIN
-
-  // ==================== SUPABASE SETUP ====================
-  // TODO: Replace these with your actual Supabase credentials
+  const ADMIN_PIN = '1234';
   const SUPABASE_URL = 'https://imdamexqcqyoibczikfv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltZGFtZXhxY3F5b2liY3ppa2Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NTc5NzQsImV4cCI6MjA4ODUzMzk3NH0.3AQIE89zyD0vWYoN9a4-nPnam4Y0u9UaNA5HjEjmL2w';
-
-  // ==================== UTILITY FUNCTIONS ====================
 
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
   };
-
-  const isAfterMidnight = () => {
-    const now = new Date();
-    return now.getHours() === 0 && now.getMinutes() < 1;
-  };
-
-  // ==================== SUPABASE FUNCTIONS ====================
 
   const supabaseCall = async (endpoint, options = {}) => {
     const defaultHeaders = {
@@ -141,8 +128,6 @@ export default function LunchRegistrationApp() {
     }
   };
 
-  // ==================== SIGNUP HANDLERS ====================
-
   const handleSignupChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -162,7 +147,6 @@ export default function LunchRegistrationApp() {
 
     setLoading(true);
     try {
-      // Check for duplicate
       const isDuplicate = await checkDuplicateSignup(formData.name);
       if (isDuplicate) {
         setError(`You've already registered for lunch today, ${formData.name}!`);
@@ -170,7 +154,6 @@ export default function LunchRegistrationApp() {
         return;
       }
 
-      // Add to database
       await addRegistration(formData);
 
       setSubmitted(true);
@@ -185,8 +168,6 @@ export default function LunchRegistrationApp() {
     }
   };
 
-  // ==================== ADMIN HANDLERS ====================
-
   const handlePinSubmit = (e) => {
     e.preventDefault();
     if (pinInput === ADMIN_PIN) {
@@ -194,7 +175,6 @@ export default function LunchRegistrationApp() {
       setPinError('');
       setCurrentView('admin');
       fetchTodayRegistrations();
-      // Start polling for real-time updates
       pollIntervalRef.current = setInterval(() => {
         fetchTodayRegistrations();
       }, 3000);
@@ -246,15 +226,13 @@ export default function LunchRegistrationApp() {
     a.click();
   };
 
-  // Cleanup interval on unmount
   useEffect(() => {
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
   }, []);
 
-  // ==================== RENDER: SIGNUP VIEW ====================
-
+  // SIGNUP VIEW
   if (currentView === 'signup') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 flex items-center justify-center p-4">
@@ -414,8 +392,7 @@ export default function LunchRegistrationApp() {
     );
   }
 
-  // ==================== RENDER: PIN VIEW ====================
-
+  // PIN VIEW
   if (currentView === 'pin') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
@@ -476,8 +453,7 @@ export default function LunchRegistrationApp() {
     );
   }
 
-  // ==================== RENDER: ADMIN VIEW ====================
-
+  // ADMIN VIEW
   if (currentView === 'admin') {
     const totalCount = registrations.length;
     const vegetarianCount = registrations.filter((r) => r.vegetarian).length;
@@ -609,15 +585,6 @@ export default function LunchRegistrationApp() {
                 <p className="text-sm">Come back later to see who's signed up</p>
               </div>
             )}
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={handleManualReset}
-              className="px-6 py-2 rounded-lg font-semibold bg-red-900 hover:bg-red-800 text-red-200 transition-all text-sm"
-            >
-              Manual Reset (for testing)
-            </button>
           </div>
 
           <div className="mt-8 text-center text-slate-500 text-sm">
